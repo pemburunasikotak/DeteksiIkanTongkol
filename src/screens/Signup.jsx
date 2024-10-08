@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 
-const Login = ({ navigation }) => {
+const Signup = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
     // Implement login logic here
-    if (email && password) {
-      navigation.navigate('Home');
-    } else {
-      Alert.alert('Error', 'Please enter your email and password.');
-    }
+    navigation.navigate('Home');
+    // if (email && password) {
+    // } else {
+    //   Alert.alert('Error', 'Please enter your email and password.');
+    // }
   };
 
   return (
@@ -22,7 +22,7 @@ const Login = ({ navigation }) => {
           style={styles.input}
           placeholder="Email"
           value={email}
-          onChangeText={setEmail}
+          // onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -31,13 +31,13 @@ const Login = ({ navigation }) => {
           placeholder="Password"
           secureTextEntry
           value={password}
-          onChangeText={setPassword}
+          // onChangeText={setPassword}
         />
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+          <Text style={styles.buttonText}>Reistrasi</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.signupText}>Don't have an account? Sign up</Text>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Back to Login</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -95,4 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default Signup;

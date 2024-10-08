@@ -7,11 +7,11 @@ const Login = ({ navigation }) => {
 
   const handleLogin = () => {
     // Implement login logic here
-    if (email && password) {
-      navigation.navigate('Home');
-    } else {
-      Alert.alert('Error', 'Please enter your email and password.');
-    }
+    navigation.navigate('Home');
+    // if (email && password) {
+    // } else {
+    //   Alert.alert('Error', 'Please enter your email and password.');
+    // }
   };
 
   return (
@@ -22,7 +22,7 @@ const Login = ({ navigation }) => {
           style={styles.input}
           placeholder="Email"
           value={email}
-          onChangeText={setEmail}
+          // onChangeText={setEmail}
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -31,7 +31,7 @@ const Login = ({ navigation }) => {
           placeholder="Password"
           secureTextEntry
           value={password}
-          onChangeText={setPassword}
+          // onChangeText={setPassword}
         />
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>

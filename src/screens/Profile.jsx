@@ -1,34 +1,31 @@
-// src/screens/Profile.js
 import React from 'react';
-import { View, Text, Image, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { TextInput } from 'react-native-paper';
 
-const Profile = () => {
-    const handleEditProfile = () => {
-        // Logic untuk mengedit profil
+const Profile = ({ navigation }) => {
+    const user = {
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        profileImage: 'https://via.placeholder.com/150', // Dummy image URL
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.headerText}>Profil Saya</Text>
+                <Image source={{ uri: user.profileImage }} style={styles.profileImage} />
+                <Text style={styles.name}>{user.name}</Text>
+                <Text style={styles.email}>{user.email}</Text>
             </View>
-            <View style={styles.profileInfo}>
-                <Image
-                    source={{ uri: 'https://via.placeholder.com/100' }} // Ganti dengan URL gambar profil
-                    style={styles.profileImage}
-                />
-                <Text style={styles.name}>Nama Pengguna</Text>
-                <Text style={styles.email}>email@example.com</Text>
-                <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
-                    <Text style={styles.editButtonText}>Edit Profil</Text>
+
+            <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={() => alert('Edit Profile')}>
+                    <Text style={styles.buttonText}>Edit Profile</Text>
                 </TouchableOpacity>
-            </View>
-            <View style={styles.menu}>
-                <TouchableOpacity style={styles.menuItem}>
-                    <Text style={styles.menuItemText}>Pengaturan</Text>
+                <TouchableOpacity style={styles.button} onPress={() => alert('Settings')}>
+                    <Text style={styles.buttonText}>Settings</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.menuItem}>
-                    <Text style={styles.menuItemText}>Keluar</Text>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.replace('SplashScreen')}>
+                    <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -38,57 +35,51 @@ const Profile = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        backgroundColor: '#f8f8f8',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: '#4CAF50', // Matching background color
     },
     header: {
         alignItems: 'center',
-        marginBottom: 20,
-    },
-    headerText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    profileInfo: {
-        alignItems: 'center',
-        marginBottom: 40,
+        marginVertical: 40,
     },
     profileImage: {
         width: 100,
         height: 100,
         borderRadius: 50,
         marginBottom: 10,
+        borderWidth: 2,
+        borderColor: '#fff', // White border around the profile image
     },
     name: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff', // Text color matching the splash screen
     },
     email: {
         fontSize: 16,
-        color: '#888',
-    },
-    editButton: {
-        backgroundColor: '#007BFF',
-        padding: 10,
-        borderRadius: 5,
-        marginTop: 10,
-    },
-    editButtonText: {
         color: '#fff',
-        fontWeight: '600',
+        marginBottom: 20,
     },
-    menu: {
-        marginTop: 20,
+    buttonContainer: {
+        width: '90%',
+        padding: 20,
     },
-    menuItem: {
-        padding: 15,
+    button: {
         backgroundColor: '#fff',
-        borderRadius: 5,
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
         marginBottom: 10,
-        elevation: 1,
+        elevation: 2, // Shadow effect for Android
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
     },
-    menuItemText: {
-        fontSize: 18,
+    buttonText: {
+        color: '#4CAF50', // Button text color matching the theme
+        fontWeight: 'bold',
     },
 });
 

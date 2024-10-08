@@ -1,123 +1,92 @@
-// screens/Home.js
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
-import { Button } from 'react-native-paper'; // Menggunakan button dari react-native-paper
+// src/screens/Dashboard.js
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
-const Home = () => {
+const Dashboard = () => {
+    const [history, setHistory] = useState([
+        { id: 1, date: '2024-10-01', result: 'Ikan Segar' },
+        { id: 2, date: '2024-10-02', result: 'Mengandung Formalin' },
+        { id: 3, date: '2024-10-03', result: 'Ikan Segar' },
+    ]); // Contoh data riwayat deteksi
+
+    const report = () => {
+        // Logika untuk menampilkan laporan (bisa diisi dengan fungsi atau navigasi)
+        console.log('Menampilkan laporan...');
+    };
+
     return (
-        <ScrollView style={styles.container}>
-            <Image
-                source={{ uri: 'https://example.com/your-image-url.jpg' }} // Ganti dengan URL gambar yang sesuai
-                style={styles.headerImage}
-            />
-            <Text style={styles.title}>Deteksi Ikan</Text>
-            <Text style={styles.subtitle}>Mendeteksi ikan dengan akurat.</Text>
-            <Text style={styles.welcomeText}>Selamat Datang di Aplikasi Deteksi Ikan</Text>
-            <Text style={styles.description}>
-                Aplikasi ini dirancang untuk membantu Anda mendeteksi berbagai jenis ikan dengan menggunakan teknologi kecerdasan buatan...
-            </Text>
+        <View style={styles.container}>
+            <Text style={styles.title}>Dashboard Riwayat Deteksi</Text>
+            <Text style={styles.subtitle}>Riwayat Deteksi Ikan Tongkol</Text>
+            
+            <ScrollView style={styles.historyContainer}>
+                {history.length > 0 ? (
+                    history.map((item) => (
+                        <View key={item.id} style={styles.historyItem}>
+                            <Text style={styles.historyText}>{`Tanggal: ${item.date}`}</Text>
+                            <Text style={styles.historyText}>{`Hasil: ${item.result}`}</Text>
+                        </View>
+                    ))
+                ) : (
+                    <Text style={styles.noHistoryText}>Tidak ada riwayat deteksi.</Text>
+                )}
+            </ScrollView>
 
-            <View style={styles.gridContainer}>
-                <TouchableOpacity style={styles.card}>
-                    <Image
-                        source={{ uri: 'https://example.com/koi-image.jpg' }} // Ganti dengan URL gambar Ikan Koi
-                        style={styles.cardImage}
-                    />
-                    <Text style={styles.cardText}>Ikan Koi</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.card}>
-                    <Image
-                        source={{ uri: 'https://example.com/cupang-image.jpg' }} // Ganti dengan URL gambar Ikan Cupang
-                        style={styles.cardImage}
-                    />
-                    <Text style={styles.cardText}>Ikan Cupang</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.card}>
-                    <Image
-                        source={{ uri: 'https://example.com/mas-image.jpg' }} // Ganti dengan URL gambar Ikan Mas
-                        style={styles.cardImage}
-                    />
-                    <Text style={styles.cardText}>Ikan Mas</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.card}>
-                    <Image
-                        source={{ uri: 'https://example.com/lele-image.jpg' }} // Ganti dengan URL gambar Ikan Lele
-                        style={styles.cardImage}
-                    />
-                    <Text style={styles.cardText}>Ikan Lele</Text>
-                </TouchableOpacity>
-            </View>
-            <TouchableOpacity>
-                <Button mode="contained" style={styles.button}>
-                    Mulai Deteksi
-                </Button>
+            <TouchableOpacity style={styles.reportButton} onPress={report}>
+                <Text style={styles.buttonText}>Lihat Laporan</Text>
             </TouchableOpacity>
-        </ScrollView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 8,
-        backgroundColor: '#fff',
-    },
-    headerImage: {
-        width: '100%',
-        height: 200,
-        borderRadius: 8,
+        padding: 20,
+        backgroundColor: '#4CAF50', // Warna latar belakang
     },
     title: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginVertical: 10,
+        color: '#fff',
+        marginBottom: 10,
     },
     subtitle: {
         fontSize: 16,
-        color: '#888',
-    },
-    welcomeText: {
-        fontSize: 20,
-        marginVertical: 10,
-    },
-    description: {
-        fontSize: 14,
-        color: '#555',
+        color: '#fff',
         marginBottom: 20,
     },
-    gridContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        marginBottom: 20,
-    },
-    card: {
-        width: '48%', // Mengatur lebar kartu
-        marginBottom: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        overflow: 'hidden',
+    historyContainer: {
+        flex: 1,
         backgroundColor: '#fff',
-    },
-    cardImage: {
-        width: '100%',
-        height: 100,
-    },
-    cardText: {
-        textAlign: 'center',
-        paddingVertical: 5,
-        fontWeight: 'bold',
-    },
-    button: {
-        marginTop: 20,
+        borderRadius: 8,
         padding: 10,
         marginBottom: 20,
-        backgroundColor: '#007BFF',
+    },
+    historyItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+    },
+    historyText: {
+        fontSize: 16,
+        color: '#333',
+    },
+    noHistoryText: {
+        textAlign: 'center',
+        color: '#888',
+        marginVertical: 20,
+    },
+    reportButton: {
+        backgroundColor: '#FFC107', // Warna tombol laporan
+        padding: 15,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color: '#000', // Warna teks tombol
+        fontWeight: 'bold',
     },
 });
 
-export default Home;
+export default Dashboard;
