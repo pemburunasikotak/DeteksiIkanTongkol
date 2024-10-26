@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-start',
         alignItems: 'center',
-        backgroundColor: '#4CAF50', // Matching background color
+        backgroundColor: '#40E0D0', // Matching background color
     },
     header: {
         alignItems: 'center',

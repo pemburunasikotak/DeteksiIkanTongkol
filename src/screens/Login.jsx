@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert, ImageBackground } from 'react-native';
+import FastImage from 'react-native-fast-image';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -15,7 +16,11 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    // <View style={styles.container}>
+    <FastImage
+      // source={require('../assets/theunderwa_5kw8f88x.gif')}
+      style={styles.container}
+    >
       <View style={styles.card}>
         <Text style={styles.title}>Login</Text>
         <TextInput
@@ -40,7 +45,9 @@ const Login = ({ navigation }) => {
           <Text style={styles.signupText}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </FastImage>
+    // </View>
+
   );
 };
 

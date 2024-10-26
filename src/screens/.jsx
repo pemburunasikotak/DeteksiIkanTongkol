@@ -1,45 +1,87 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, Button, StyleSheet, ActivityIndicator } from 'react-native';
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-react-native';
+// import { Camera } from 'react-native-camera-kit';
+// import { bundleResourceIO } from '@tensorflow/tfjs-react-native';
+// import { fetch } from '@tensorflow/tfjs-react-native'; // Needed to load the model remotely
 
-const Login = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const App = () => {
+  const [isTfReady, setTfReady] = useState(false);
+  const [model, setModel] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+  const cameraRef = useRef(null);
 
-  const handleLogin = () => {
-    // Implement login logic here
-    navigation.navigate('Home');
-    // if (email && password) {
-    // } else {
-    //   Alert.alert('Error', 'Please enter your email and password.');
-    // }
+  // Initialize TensorFlow and load the model
+  useEffect(() => {
+    const initializeTensorFlow = async () => {
+      // Load the TensorFlow JS for React Native
+      await tf.ready();
+      setTfReady(true);
+      console.log('TensorFlow.js is ready!');
+
+      // Load the Teachable Machine model from a remote URL
+      const modelJson = 'https://teachablemachine.withgoogle.com/models/UKLc8O-Fz/';
+      const loadedModel = await tf.loadGraphModel(modelJson);
+      setModel(loadedModel);
+      console.log('Model loaded successfully!');
+    };
+
+    initializeTensorFlow();
+  }, []);
+
+  // Function to capture an image and run the prediction
+  const handleCaptureImage = async () => {
+    if (!cameraRef.current || !model) return;
+
+    try {
+      const imageData = await cameraRef.current.captureImage();
+      const imageTensor = preprocessImage(imageData);
+      const predictionResult = await model.predict(imageTensor).data();
+
+      // Get the highest prediction result
+      const predictedClassIndex = predictionResult.indexOf(Math.max(...predictionResult));
+      setPrediction(predictedClassIndex);
+
+      console.log('Prediction:', predictedClassIndex);
+    } catch (error) {
+      console.error('Error capturing image or running prediction:', error);
+    }
   };
+
+  // Preprocessing image to match the model input shape
+  const preprocessImage = (imageData) => {
+    const imageTensor = tf.browser.fromPixels(imageData).resizeBilinear([224, 224]).expandDims(0);
+    return imageTensor;
+  };
+
+  if (!isTfReady) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Loading TensorFlow.js...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Login</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          // onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          // onChangeText={setPassword}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-          <Text style={styles.signupText}>Don't have an account? Sign up</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.title}>Teachable Machine Image Recognition</Text>
+
+      {/* <Camera
+        ref={cameraRef}
+        style={styles.camera}
+        cameraType="back" // Use the back camera
+        captureButtonVisible={false}
+      /> */}
+
+      <Button title="Capture Image" onPress={handleCaptureImage} />
+
+      {prediction !== null && (
+        <View style={styles.predictionContainer}>
+          <Text style={styles.predictionText}>Prediction: {prediction}</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -49,50 +91,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#4CAF50', // Background color matching the splash screen
-  },
-  card: {
-    width: '90%',
-    padding: 20,
-    borderRadius: 10,
-    backgroundColor: '#fff', // Card background color
-    elevation: 3, // Shadow effect for Android
-    shadowColor: '#000', // Shadow for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-    textAlign: 'center',
+    fontSize: 20,
     marginBottom: 20,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: '#f9f9f9', // Light background for input
+  camera: {
+    width: '100%',
+    height: 300,
+    marginBottom: 20,
   },
-  button: {
-    backgroundColor: '#4CAF50', // Button color
-    padding: 15,
-    borderRadius: 5,
+  predictionContainer: {
+    marginTop: 20,
     alignItems: 'center',
-    marginVertical: 10,
   },
-  buttonText: {
-    color: '#fff',
+  predictionText: {
     fontSize: 18,
     fontWeight: 'bold',
   },
-  signupText: {
-    color: '#4CAF50',
-    textAlign: 'center',
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
-export default Login;
+export default App;
