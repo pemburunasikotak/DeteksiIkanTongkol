@@ -17,7 +17,7 @@ const SplashScreen = ({ navigation }) => {
       style={styles.container}
     >
       <Image source={require('../assets/logo_final_refined.png')} style={styles.logo} />
-      <Text style={styles.text}>Welcome to My App!</Text>
+      <Text style={styles.text}>Polikant Tual MRPHP</Text>
     </FastImage>
   );
 };

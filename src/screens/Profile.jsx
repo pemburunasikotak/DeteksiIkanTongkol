@@ -1,18 +1,17 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { TextInput } from 'react-native-paper';
 
 const Profile = ({ navigation }) => {
     const user = {
-        name: 'John Doe',
-        email: 'john.doe@example.com',
+        name: 'Polikant Tual MRPHP',
+        email: 'humas@polikant.ac.id',
         profileImage: 'https://via.placeholder.com/150', // Dummy image URL
     };
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Image source={{ uri: user.profileImage }} style={styles.profileImage} />
+                <Image source={require('../assets/logo_final_refined.png')} style={styles.profileImage} />
                 <Text style={styles.name}>{user.name}</Text>
                 <Text style={styles.email}>{user.email}</Text>
             </View>

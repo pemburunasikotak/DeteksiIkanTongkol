@@ -1,22 +1,31 @@
 // src/screens/Dashboard.js
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Modal, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Icon
+import { StoreContext } from '../context/StoreContext';
 
 const Dashboard = () => {
-    const [history, setHistory] = useState([
-        { id: 1, date: '2024-10-01', result: 'Ikan Segar' },
-        { id: 2, date: '2024-10-02', result: 'Mengandung Formalin' },
-        { id: 3, date: '2024-10-03', result: 'Ikan Segar' },
-    ]);
+    const { storedResult } = useContext(StoreContext);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
 
-    const report = () => {
-        console.log('Menampilkan laporan...');
+    // Fungsi untuk menutup modal
+    const closeModal = () => {
+        setModalVisible(false);
+        setSelectedItem(null);
     };
 
-    const totalDetection = history.length;
-    const freshFishCount = history.filter(item => item.result === 'Ikan Segar').length;
+    // Fungsi untuk membuka modal dengan item yang dipilih
+    const openModal = (item) => {
+        setSelectedItem(item);
+        setModalVisible(true);
+    };
+
+    const totalDetection = storedResult.length;
+    const freshFishCount = storedResult?.filter(item => item.prediction === 'non formalin').length;
     const formalinFishCount = totalDetection - freshFishCount;
+
+
 
     return (
         <View style={styles.container}>
@@ -42,29 +51,61 @@ const Dashboard = () => {
 
             {/* History Section */}
             <ScrollView style={styles.historyContainer}>
-                {history.length > 0 ? (
-                    history.map((item) => (
-                        <View key={item.id} style={styles.historyItem}>
-                            <Icon name={item.result === 'Ikan Segar' ? 'check-circle' : 'error'}
-                                  size={24}
-                                  color={item.result === 'Ikan Segar' ? '#4CAF50' : '#F44336'}
-                                  style={styles.historyIcon} />
-                            <View>
-                                <Text style={styles.historyText}>{`Tanggal: ${item.date}`}</Text>
-                                <Text style={styles.historyText}>{`Hasil: ${item.result}`}</Text>
-                            </View>
-                        </View>
+                {storedResult.length > 0 ? (
+                    storedResult.map((item, key) => (
+                        <React.Fragment key={key}>
+                            <TouchableOpacity onPress={() => openModal(item)} style={styles.historyItem}>
+                                <Icon
+                                    name={item.prediction === 'non formalin' ? 'check-circle' : 'error'}
+                                    size={24}
+                                    color={item.prediction === 'non formalin' ? '#4CAF50' : '#F44336'}
+                                    style={styles.historyIcon}
+                                />
+                                <View>
+                                    <Text style={styles.historyText}>{`Tanggal: ${item.date}`}</Text>
+                                    <Text style={styles.historyText}>{`Hasil: ${item.prediction}`}</Text>
+                                </View>
+                            </TouchableOpacity>
+                            {/* {item.imageUri && (
+                                <View>
+                                    <Image
+                                        source={{ uri: `data:image/jpeg;base64,${item.imageUri}` }}
+                                        style={styles.image}
+                                    />
+                                </View>
+                            )} */}
+                        </React.Fragment>
                     ))
                 ) : (
                     <Text style={styles.noHistoryText}>Tidak ada riwayat deteksi.</Text>
                 )}
             </ScrollView>
 
-            {/* Report Button */}
-            <TouchableOpacity style={styles.reportButton} onPress={report}>
-                <Icon name="bar-chart" size={24} color="#000" style={styles.buttonIcon} />
-                <Text style={styles.buttonText}>Lihat Laporan</Text>
-            </TouchableOpacity>
+            {/* Modal untuk menampilkan detail */}
+            {selectedItem && (
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={closeModal}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>{`Tanggal: ${selectedItem?.date}`}</Text>
+                            <Text style={styles.modalText}>{`Hasil: ${selectedItem?.prediction}`}</Text>
+                            {selectedItem.imageUri && (
+                                <View>
+                                    <Image
+                                        source={{ uri: `data:image/jpeg;base64,${selectedItem.imageUri}` }}
+                                        style={styles.imageModal}
+                                    />
+                                </View>
+                            )}
+                            <Button title="Close" onPress={closeModal} />
+                        </View>
+                    </View>
+                </Modal>
+            )}
         </View>
     );
 };
@@ -160,6 +201,41 @@ const styles = StyleSheet.create({
         color: '#000',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+    image: {
+        width: '100%',
+        height: 200,
+        marginBottom: 10,
+        resizeMode: 'cover',
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    imageModal: {
+        width: 200,
+        height: 200,
+        marginBottom: 10,
+        resizeMode: 'cover',
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#fff',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Overlay background
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: 300,
+        alignItems: 'center',
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 10,
     },
 });
 

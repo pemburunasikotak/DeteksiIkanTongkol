@@ -18,7 +18,7 @@ const Login = ({ navigation }) => {
   return (
     // <View style={styles.container}>
     <FastImage
-      // source={require('../assets/theunderwa_5kw8f88x.gif')}
+      source={require('../assets/theunderwa_5kw8f88x.gif')}
       style={styles.container}
     >
       <View style={styles.card}>
@@ -41,9 +41,9 @@ const Login = ({ navigation }) => {
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+        {/* <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
           <Text style={styles.signupText}>Don't have an account? Sign up</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </FastImage>
     // </View>

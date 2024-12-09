@@ -9,6 +9,7 @@ import Home from './screens/Home';
 import DeteksiCitra from './screens/DeteksiCitra';
 import Profile from './screens/Profile';
 import Signup from './screens/Signup';
+import { StoreProvider } from './context/StoreContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -37,9 +38,9 @@ const HomeTabs = () => {
         tabBarIconSize: 24,               // Optional: Set default icon size
       })}
     >
-      <Tab.Screen name="Beranda" component={Home} options={{ headerShown: false }}/>
-      <Tab.Screen name="Deteksi Citra" component={DeteksiCitra} options={{ headerShown: false }}/>
-      <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false }}/>
+      <Tab.Screen name="Beranda" component={Home} options={{ headerShown: false }} />
+      <Tab.Screen name="Deteksi Citra" component={DeteksiCitra} options={{ headerShown: false }} />
+      <Tab.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 };
@@ -47,14 +48,16 @@ const HomeTabs = () => {
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
-        <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
-        <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <StoreProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="SplashScreen">
+          <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+          <Stack.Screen name="Signup" component={Signup} options={{ headerShown: false }} />
+          <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </StoreProvider>
   );
 };
 
