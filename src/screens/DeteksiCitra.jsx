@@ -1,13 +1,27 @@
 // src/screens/DeteksiCitra.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
+import ImageResizer from 'react-native-image-resizer';
+import { StoreContext } from '../context/StoreContext';
 
 const DeteksiCitra = () => {
+    const { saveResult, storedResult } = useContext(StoreContext);
     const [imageUri, setImageUri] = useState(null);
-    const [loading, setLoading] = useState(false); // State untuk loader
+    const [loading, setLoading] = useState(false);
+    const [hasil, setHasil] = useState(null);
+    const [timer, setTimer] = useState(0); // Timer state for countdown
+
+    useEffect(() => {
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(interval); // Clear interval when component unmounts
+        }
+    }, [timer]);
 
     const openCamera = () => {
         const options = {
@@ -32,19 +46,43 @@ const DeteksiCitra = () => {
 
         if (imageUri) {
             setLoading(true);
-            // Mengonversi imageUri menjadi Base64
-            const base64String = await RNFS.readFile(imageUri, 'base64');
-            const response = await fetch('https://formalin-fish-tensorflowjs-production.up.railway.app/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ image: base64String }),
-            });
-            console.log("🚀 ~ extractInfo ~ response:", response)
-            console.log('🚀 ~ extractInfo ~ response:', JSON.stringify({ image: base64String }));
+            try {
+                const resizedImage = await ImageResizer.createResizedImage(
+                    imageUri,
+                    800,
+                    600,
+                    'JPEG',
+                    80
+                );
+                const base64String = await RNFS.readFile(resizedImage.uri, 'base64');
+                const response = await fetch('https://formalin-fish-tensorflowjs-production.up.railway.app/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: base64String }),
+                });
+                const result = await response.json();
+                setHasil(result);
+                saveResult([...storedResult, {
+                    ...result,
+                    imageUri: base64String,
+                    date: new Date().toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false,
+                    }),
+                }]);
+                setTimer(60); // Start 1-minute countdown
+            } catch (error) {
+                setHasil({ error: error.message });
+            } finally {
+                setLoading(false);
+            }
         }
-        setLoading(false);
     };
 
     return (
@@ -57,25 +95,42 @@ const DeteksiCitra = () => {
                     <Text style={styles.placeholderText}>No Image Captured</Text>
                 </View>
             )}
-            <View style={styles.buttonContainer}>
-                <View>
-                    {loading && (
-                        <View style={styles.loaderContainer}>
-                            <ActivityIndicator size="large" color="#ffffff" />
-                            <Text style={styles.loaderText}>Processing...</Text>
-                        </View>
-                    )}
-                </View>
-                <View style={styles.contenButton}>
-                    <TouchableOpacity style={styles.button} onPress={openCamera}>
-                        <Text style={styles.buttonText}>Open Camera</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.button} onPress={extractInfo}>
-                        <Text style={styles.buttonText}>Extract Info</Text>
-                    </TouchableOpacity>
-                </View>
+
+            <View style={hasil && styles.resultContainer}>
+                {hasil && (
+                    hasil.error ? (
+                        <Text style={styles.errorText}>Error: {hasil.error}</Text>
+                    ) : (
+                        <>
+                            <Text style={styles.text20}>Prediction: {hasil.prediction}</Text>
+                            <Text>Formalin: {hasil.detail_prediction?.formalin ?? 'N/A'}</Text>
+                            <Text>Non-Formalin: {hasil.detail_prediction?.non_formalin ?? 'N/A'}</Text>
+                        </>
+                    )
+                )}
             </View>
 
+            <View style={styles.buttonContainer}>
+                {loading ? (
+                    <View style={styles.loaderContainer}>
+                        <ActivityIndicator size="large" color="#ffffff" />
+                        <Text style={styles.loaderText}>Processing...</Text>
+                    </View>
+                ) : timer > 0 ?
+                    <View style={styles.loaderContainer}>
+                        <Text style={styles.countdownText}>Wait for {timer} seconds</Text>
+                    </View>
+                    : (
+                        <View style={styles.contenButton}>
+                            <TouchableOpacity style={styles.button} onPress={openCamera} disabled={timer > 0}>
+                                <Text style={[styles.buttonText, timer > 0 && styles.disabledText]}>Open Camera</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={extractInfo} disabled={timer > 0}>
+                                <Text style={[styles.buttonText, timer > 0 && styles.disabledText]}>Extract Info</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+            </View>
         </View>
     );
 };
@@ -88,9 +143,14 @@ const styles = StyleSheet.create({
         padding: 20,
         backgroundColor: '#4CAF50',
     },
+    text20: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 5,
+    },
     image: {
         width: '100%',
-        height: 300,
+        height: 200,
         marginBottom: 20,
         resizeMode: 'cover',
         borderRadius: 10,
@@ -112,6 +172,19 @@ const styles = StyleSheet.create({
         marginTop: 10,
         color: '#888',
     },
+    resultContainer: {
+        backgroundColor: '#FFFFFF',
+        padding: 10,
+        paddingHorizontal: 20,
+        borderRadius: 4,
+        alignItems: 'center',
+        width: '100%',
+    },
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        textAlign: 'center',
+    },
     buttonContainer: {
         flexDirection: 'column',
         justifyContent: 'space-around',
@@ -119,9 +192,10 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 20,
     },
-    contenButton:{
-        flexDirection:'row',
-        gap:10,
+    contenButton: {
+        flexDirection: 'row',
+        gap: 10,
+        alignItems: 'center',
     },
     button: {
         backgroundColor: '#fff',
@@ -138,6 +212,23 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#4CAF50',
         fontWeight: 'bold',
+    },
+    disabledText: {
+        color: '#aaa', // Change text color when disabled
+    },
+    loaderContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    loaderText: {
+        color: '#ffffff',
+        marginLeft: 10,
+    },
+    countdownText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        marginBottom: 10,
     },
 });
 
