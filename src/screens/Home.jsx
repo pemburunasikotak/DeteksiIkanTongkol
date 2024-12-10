@@ -2,10 +2,10 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Modal, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Icon
-import { StoreContext } from '../context/StoreContext';
+import useAsyncStorage from '../hooks/useAsyncStorage';
 
 const Dashboard = () => {
-    const { storedResult } = useContext(StoreContext);
+    const [storedValue] = useAsyncStorage('extract_info', []);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
 
@@ -21,8 +21,8 @@ const Dashboard = () => {
         setModalVisible(true);
     };
 
-    const totalDetection = storedResult.length;
-    const freshFishCount = storedResult?.filter(item => item.prediction === 'non formalin').length;
+    const totalDetection = storedValue.length;
+    const freshFishCount = storedValue?.filter(item => item.prediction === 'non formalin').length;
     const formalinFishCount = totalDetection - freshFishCount;
 
 
@@ -51,8 +51,8 @@ const Dashboard = () => {
 
             {/* History Section */}
             <ScrollView style={styles.historyContainer}>
-                {storedResult.length > 0 ? (
-                    storedResult.map((item, key) => (
+                {storedValue.length > 0 ? (
+                    storedValue.map((item, key) => (
                         <React.Fragment key={key}>
                             <TouchableOpacity onPress={() => openModal(item)} style={styles.historyItem}>
                                 <Icon

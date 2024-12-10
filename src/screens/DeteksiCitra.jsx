@@ -1,18 +1,18 @@
 // src/screens/DeteksiCitra.js
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
 import ImageResizer from 'react-native-image-resizer';
-import { StoreContext } from '../context/StoreContext';
+import useAsyncStorage from '../hooks/useAsyncStorage';
 
 const DeteksiCitra = () => {
-    const { saveResult, storedResult } = useContext(StoreContext);
     const [imageUri, setImageUri] = useState(null);
     const [loading, setLoading] = useState(false);
     const [hasil, setHasil] = useState(null);
     const [timer, setTimer] = useState(0); // Timer state for countdown
+    const [storedValue, saveValue] = useAsyncStorage('extract_info', []);
 
     useEffect(() => {
         if (timer > 0) {
@@ -64,8 +64,8 @@ const DeteksiCitra = () => {
                 });
                 const result = await response.json();
                 setHasil(result);
-                saveResult([...storedResult, {
-                    ...result,
+                saveValue([...storedValue, {
+                  ...result,
                     imageUri: base64String,
                     date: new Date().toLocaleString('en-GB', {
                         day: '2-digit',
@@ -75,7 +75,7 @@ const DeteksiCitra = () => {
                         minute: '2-digit',
                         hour12: false,
                     }),
-                }]);
+                }])
                 setTimer(60); // Start 1-minute countdown
             } catch (error) {
                 setHasil({ error: error.message });

@@ -9,7 +9,6 @@ import Home from './screens/Home';
 import DeteksiCitra from './screens/DeteksiCitra';
 import Profile from './screens/Profile';
 import Signup from './screens/Signup';
-import { StoreProvider } from './context/StoreContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -48,7 +47,6 @@ const HomeTabs = () => {
 
 const App = () => {
   return (
-    <StoreProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="SplashScreen">
           <Stack.Screen name="SplashScreen" component={SplashScreen} options={{ headerShown: false }} />
@@ -57,7 +55,6 @@ const App = () => {
           <Stack.Screen name="Home" component={HomeTabs} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
-    </StoreProvider>
   );
 };
 
