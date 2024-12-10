@@ -1,7 +1,7 @@
 // src/screens/DeteksiCitra.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
-import { launchCamera } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
 import ImageResizer from 'react-native-image-resizer';
@@ -39,6 +39,23 @@ const DeteksiCitra = () => {
                 setImageUri(response.assets[0].uri);
             }
         });
+    };
+
+    const openGallery = () => {
+      const options = {
+          mediaType: 'photo',
+          quality: 1,
+      };
+
+      launchImageLibrary(options, (response) => {
+          if (response.didCancel) {
+              console.log('User cancelled gallery selection');
+          } else if (response.error) {
+              console.error('Gallery Error: ', response.error);
+          } else if (response.assets) {
+              setImageUri(response.assets[0].uri);
+          }
+      });
     };
 
     const extractInfo = async () => {
@@ -125,9 +142,14 @@ const DeteksiCitra = () => {
                             <TouchableOpacity style={styles.button} onPress={openCamera} disabled={timer > 0}>
                                 <Text style={[styles.buttonText, timer > 0 && styles.disabledText]}>Open Camera</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.button} onPress={extractInfo} disabled={timer > 0}>
-                                <Text style={[styles.buttonText, timer > 0 && styles.disabledText]}>Extract Info</Text>
+                            <TouchableOpacity style={styles.button} onPress={openGallery} disabled={timer > 0}>
+                                <Text style={[styles.buttonText, timer > 0 && styles.disabledText]}>Open Gallery</Text>
                             </TouchableOpacity>
+                            {imageUri && (
+                              <TouchableOpacity style={styles.button} onPress={extractInfo} disabled={timer > 0}>
+                                  <Text style={[styles.buttonText, timer > 0 && styles.disabledText]}>Extract Info</Text>
+                              </TouchableOpacity>
+                            )}
                         </View>
                     )}
             </View>
