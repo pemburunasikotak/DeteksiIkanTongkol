@@ -1,13 +1,15 @@
 // src/screens/Dashboard.js
-import React, { useContext, useState } from 'react';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Modal, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Icon
-import useAsyncStorage from '../hooks/useAsyncStorage';
 
 const Dashboard = () => {
-    const [storedValue] = useAsyncStorage('extract_info', []);
+    const { getItem } = useAsyncStorage("extract_info")
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [storedValue, setStoredValue] = useState([])
 
     // Fungsi untuk menutup modal
     const closeModal = () => {
@@ -21,10 +23,20 @@ const Dashboard = () => {
         setModalVisible(true);
     };
 
-    const totalDetection = storedValue.length;
+    const totalDetection = storedValue?.length;
     const freshFishCount = storedValue?.filter(item => item.prediction === 'non formalin').length;
     const formalinFishCount = totalDetection - freshFishCount;
 
+    const readItemFromStorage = async () => {
+        const item = await getItem();
+        setStoredValue(item ? JSON.parse(item) : []);
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            readItemFromStorage();
+        }, [])
+    );
 
 
     return (
@@ -51,8 +63,8 @@ const Dashboard = () => {
 
             {/* History Section */}
             <ScrollView style={styles.historyContainer}>
-                {storedValue.length > 0 ? (
-                    storedValue.map((item, key) => (
+                {storedValue?.length > 0 ? (
+                    storedValue?.sort((a, b) => b?.timestamp - a?.timestamp)?.map((item, key) => (
                         <React.Fragment key={key}>
                             <TouchableOpacity onPress={() => openModal(item)} style={styles.historyItem}>
                                 <Icon

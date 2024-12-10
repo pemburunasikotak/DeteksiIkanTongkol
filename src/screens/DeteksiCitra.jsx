@@ -1,18 +1,36 @@
 // src/screens/DeteksiCitra.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
 import ImageResizer from 'react-native-image-resizer';
-import useAsyncStorage from '../hooks/useAsyncStorage';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const DeteksiCitra = () => {
     const [imageUri, setImageUri] = useState(null);
     const [loading, setLoading] = useState(false);
     const [hasil, setHasil] = useState(null);
     const [timer, setTimer] = useState(0); // Timer state for countdown
-    const [storedValue, saveValue] = useAsyncStorage('extract_info', []);
+    const { getItem, setItem } = useAsyncStorage("extract_info")
+    const [storedValue, setStoredValue] = useState([])
+    
+    const readItemFromStorage = async () => {
+      const item = await getItem();
+      setStoredValue(item ? JSON.parse(item) : []);
+    };
+
+    const writeItemToStorage = async (newValue) => {
+      await setItem(JSON.stringify(newValue));
+      setStoredValue(newValue);
+    };
+
+    useFocusEffect(
+      useCallback(() => {
+        readItemFromStorage()
+      }, [])
+    );
 
     useEffect(() => {
         if (timer > 0) {
@@ -81,7 +99,7 @@ const DeteksiCitra = () => {
                 });
                 const result = await response.json();
                 setHasil(result);
-                saveValue([...storedValue, {
+                writeItemToStorage([...storedValue, {
                   ...result,
                     imageUri: base64String,
                     date: new Date().toLocaleString('en-GB', {
@@ -92,6 +110,7 @@ const DeteksiCitra = () => {
                         minute: '2-digit',
                         hour12: false,
                     }),
+                    timestamp: Date.now(),
                 }])
                 setTimer(60); // Start 1-minute countdown
             } catch (error) {
@@ -216,8 +235,9 @@ const styles = StyleSheet.create({
     },
     contenButton: {
         flexDirection: 'row',
-        gap: 10,
+        gap: 8,
         alignItems: 'center',
+        padding: 8
     },
     button: {
         backgroundColor: '#fff',
