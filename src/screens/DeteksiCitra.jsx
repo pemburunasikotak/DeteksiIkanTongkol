@@ -90,7 +90,7 @@ const DeteksiCitra = () => {
                     80
                 );
                 const base64String = await RNFS.readFile(resizedImage.uri, 'base64');
-                const response = await fetch('https://formalin-fish-tensorflowjs-production.up.railway.app/predict', {
+                const response = await fetch('https://8fy7cg-4000.csb.app/predict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
