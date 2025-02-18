@@ -6,10 +6,20 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Modal, But
 import Icon from 'react-native-vector-icons/MaterialIcons'; // Import Icon
 
 const Dashboard = () => {
-    const { getItem } = useAsyncStorage("extract_info")
+    const { getItem, removeItem } = useAsyncStorage("extract_info")
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [storedValue, setStoredValue] = useState([])
+    const [showConfirm, setShowConfirm] = useState(false)
+
+    const confirmDelete = () => {
+        setShowConfirm(true)
+    }
+
+    const handleRemoveItem = () => {
+        removeItem(); // Fungsi ini akan menghapus item dengan key 'extract_info'
+        setShowConfirm(false)
+      };
 
     // Fungsi untuk menutup modal
     const closeModal = () => {
@@ -58,8 +68,15 @@ const Dashboard = () => {
                     <Text style={styles.summaryLabel}>Mengandung Formalin</Text>
                 </View>
             </View>
-
-            <Text style={styles.subtitle}>Riwayat Deteksi Terbaru</Text>
+            <View style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: 10,
+            }}>
+                <Text style={styles.subtitle}>Riwayat Deteksi Terbaru</Text>
+                <Button title="Delete" onPress={confirmDelete} />
+            </View>
 
             {/* History Section */}
             <ScrollView style={styles.historyContainer}>
@@ -118,6 +135,29 @@ const Dashboard = () => {
                     </View>
                 </Modal>
             )}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showConfirm}
+                onRequestClose={()=> setShowConfirm(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalText}>Yakin Menghapus ?</Text>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: 10,
+                            gap:20
+                        }}>
+                            <Button title="Close" onPress={()=> setShowConfirm(false)} />
+                            <Button title="Delete" onPress={handleRemoveItem} />
+                        </View>
+                        
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
